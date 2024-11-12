@@ -78,7 +78,10 @@ query_permission_sync (Request *request)
   const char *app_id;
   gboolean allowed;
 
-  app_id = (const char *)g_object_get_data (G_OBJECT (request), "app-id");
+  if (xdp_app_info_is_host (request->app_info))
+    app_id = "";
+  else
+    app_id = (const char *)g_object_get_data (G_OBJECT (request), "app-id");
 
   permission = get_permission_sync (app_id, PERMISSION_TABLE, PERMISSION_DEVICE_CAMERA);
   if (permission == PERMISSION_ASK || permission == PERMISSION_UNSET)
