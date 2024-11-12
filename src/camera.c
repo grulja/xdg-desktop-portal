@@ -83,6 +83,7 @@ query_permission_sync (Request *request)
   permission = get_permission_sync (app_id, PERMISSION_TABLE, PERMISSION_DEVICE_CAMERA);
   if (permission == PERMISSION_ASK || permission == PERMISSION_UNSET)
     {
+      const char *permission_query_app_id = app_id;
       g_auto(GVariantBuilder) opt_builder =
         G_VARIANT_BUILDER_INIT (G_VARIANT_TYPE_VARDICT);
       g_autofree char *title = NULL;
@@ -110,6 +111,9 @@ query_permission_sync (Request *request)
         {
           title = g_strdup (_("Allow app to Use the Camera?"));
           body = g_strdup (_("An app wants to access camera devices."));
+
+          if (xdp_app_info_is_host (request->app_info))
+            permission_query_app_id = "";
         }
 
       impl_request = xdp_dbus_impl_request_proxy_new_sync (g_dbus_proxy_get_connection (G_DBUS_PROXY (access_impl)),
@@ -126,7 +130,7 @@ query_permission_sync (Request *request)
 
       if (!xdp_dbus_impl_access_call_access_dialog_sync (access_impl,
                                                          request->id,
-                                                         app_id,
+                                                         permission_query_app_id,
                                                          "",
                                                          title,
                                                          "",
